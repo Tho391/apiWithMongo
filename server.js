@@ -84,12 +84,53 @@ apiRouter.route('/users')
         })
     })
     //get all the users (acessed at Get http://localhost:8080/api/users)
-    .get(function (req,res) {
-        User.find(function (err,users) {
+    .get(function (req, res) {
+        User.find(function (err, users) {
             if (err) return res.send(err);
 
             //return the users
             res.json(users);
+        });
+    });
+
+apiRouter.route('/users/:user_id')
+    //get the user with that id
+    .get(function (req, res) {
+        User.findById(req.params.user_id, function (err, user) {
+            if (err) return res.send(err);
+            //return that user
+            res.json(user);
+        });
+    })
+    //update the user with this id
+    .put(function (req, res) {
+        User.findById(req.params.user_id, function (err, user) {
+            if (err) return res.send(err);
+            //set the user info if it exists in the request
+            if (req.body.name) user.name = req.body.name;
+            if (req.body.username) user.username = req.body.username;
+            if (req.body.password) user.password = req.body.password;
+
+            //save the user
+            user.save(function (err) {
+                if (err) return res.send(err);
+
+                //return a message
+                res.json({
+                    message: 'User updated!'
+                });
+            });
+        });
+    })
+    .delete(function (req, res) {
+        User.remove({
+            _id: req.params.user_id
+        }, function (err, user) {
+            if (err) return res.send(err);
+
+            res.json({
+                message: 'Successfully deleted'
+            });
         });
     });
 
